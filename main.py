@@ -5,11 +5,15 @@ from sprites.pipe import Pipe
 
 def main():
   pg.init()
+  pg.display.set_caption("Flappy Bird")
+  font = pg.font.Font("font/Flappy Bird Regular.ttf", 50)
 
   game_active = False
 
   screen = pg.display.set_mode((285, 500))
   clock = pg.time.Clock()
+
+  score = 0
 
   # Load assets
   # Starting Image
@@ -59,8 +63,16 @@ def main():
       pipes.draw(screen)
       bird.draw(screen)
 
+      for pipe in pipes:
+        if pipe.check_passed(bird.sprite.rect.x):
+          score += 0.5
+
+      score_surface = font.render(str(int(score)), True, (255, 255, 255))
+      screen.blit(score_surface, score_surface.get_rect(center = (142.5, 50)))
+
       if pg.sprite.spritecollide(bird.sprite, pipes, False) or bird.sprite.detect_border_collision():
         pipes.empty()
+        score = 0
         bird.sprite.reset()
         base_rect.topleft = (0, 400)
         base_2_rect.topleft = (base_rect.right, 400)
@@ -68,6 +80,7 @@ def main():
 
       bird.update()
       pipes.update()
+
     else:
       screen.blit(start_image, start_image_rect)
 
@@ -76,8 +89,6 @@ def main():
 
     base_rect.x -= 3
     base_2_rect.x -= 3
-
-    print(base_rect.right, base_2_rect.right)
 
     if base_rect.right < 0:
       base_rect.left = base_2_rect.right
